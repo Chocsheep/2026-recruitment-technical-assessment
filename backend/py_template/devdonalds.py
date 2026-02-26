@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import List, Dict, Union
 from flask import Flask, request, jsonify
 import re
+import string
 
 # ==== Type Definitions, feel free to add or modify ===========================
 @dataclass
@@ -43,8 +44,45 @@ def parse():
 # [TASK 1] ====================================================================
 # Takes in a recipeName and returns it in a form that 
 def parse_handwriting(recipeName: str) -> Union[str | None]:
-	# TODO: implement me
-	return recipeName
+	letters = list(string.ascii_letters)
+	letters.append(" ") # initialising list of "allowed" letters
+
+	recipe = list(recipeName) # converting recipeName into a list for easier character manipulation 
+
+
+	for i in recipe: # for each character, turn "_" and "-" into whitespace, else turn them into empty string (will be removed at end)
+		if i == "_" or i == "-":
+			recipe[recipe.index(i)] = " "
+		elif i not in letters:
+			recipe[recipe.index(i)] = ""
+
+	for i in range(len(recipe)): # if there is a whitespace next to an existing whitespace, remove it
+		if recipe[i] == " " and i < len(recipe):
+			if recipe[i + 1] == " ":
+				recipe[i] = ""
+
+	for i in range(len(recipe)): # convert all characters to lowercase
+		recipe[i] = recipe[i].lower()
+
+	for i in range(len(recipe)): # capitalise any letter after a whitespace (new word)
+		if recipe[i] == " ":
+			recipe[i+1] = recipe[i+1].capitalize()
+
+	if len(recipe) == 0: # if there are no remaining characters, return None
+		return None
+
+	recipe[0] = recipe[0].capitalize() # capitalise the first letter
+
+
+
+	ans = ""
+
+	for i in recipe: # reconstruct list into string
+		ans += i
+
+	recipeName = ans
+
+	return recipeName # return string
 
 
 # [TASK 2] ====================================================================
